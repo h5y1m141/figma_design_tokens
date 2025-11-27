@@ -1,4 +1,4 @@
-import { getFigmaFile } from "./src/figma/client";
+import { getFile } from "./src/figma/file";
 import { findNodeById } from "./src/figma/node";
 
 const FIGMA_FILE_ID = process.env.FIGMA_FILE_ID;
@@ -12,12 +12,14 @@ async function main() {
   console.log(`Node ID: ${FIGMA_NODE_ID}\n`);
 
   if (!FIGMA_FILE_ID || !FIGMA_NODE_ID) {
-    console.error("エラー: FIGMA_FILE_ID または FIGMA_NODE_ID が設定されていません");
+    console.error(
+      "エラー: FIGMA_FILE_ID または FIGMA_NODE_ID が設定されていません",
+    );
     process.exit(1);
   }
 
   try {
-    const fileData = await getFigmaFile(FIGMA_FILE_ID);
+    const fileData = await getFile(FIGMA_FILE_ID);
     const targetNode = findNodeById(
       fileData.document,
       FIGMA_NODE_ID.replace("-", ":"),
@@ -71,9 +73,7 @@ async function main() {
     // styles 情報の確認
     if (fileData.styles) {
       console.log("\n✓ styles 情報が存在します");
-      console.log(
-        `styles の数: ${Object.keys(fileData.styles).length} 個`,
-      );
+      console.log(`styles の数: ${Object.keys(fileData.styles).length} 個`);
     }
   } catch (error) {
     console.error("エラーが発生しました:", error);

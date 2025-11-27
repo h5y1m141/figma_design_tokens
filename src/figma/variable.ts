@@ -151,7 +151,9 @@ export function displayVariables(variablesData: GetVariablesResponse): void {
  * Variables の詳細情報を JSON で表示
  * @param variablesData - getFileVariables() のレスポンス
  */
-export function displayVariablesJSON(variablesData: GetVariablesResponse): void {
+export function displayVariablesJSON(
+  variablesData: GetVariablesResponse,
+): void {
   console.log("=== Variables 詳細情報（JSON） ===");
   console.log(JSON.stringify(variablesData, null, 2));
 }

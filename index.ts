@@ -1,8 +1,8 @@
-import { getFigmaFile } from "./src/figma/client";
+import { getFile } from "./src/figma/file";
 import {
-  findNodeById,
   displayFileInfo,
   displayNodeInfo,
+  findNodeById,
 } from "./src/figma/node";
 
 const FIGMA_FILE_ID = process.env.FIGMA_FILE_ID;
@@ -17,7 +17,7 @@ async function main() {
   if (!FIGMA_FILE_ID || !FIGMA_NODE_ID) process.exit(1);
 
   try {
-    const fileData = await getFigmaFile(FIGMA_FILE_ID);
+    const fileData = await getFile(FIGMA_FILE_ID);
     displayFileInfo(fileData);
     const targetNode = findNodeById(
       fileData.document,

@@ -65,11 +65,3 @@ export async function post(endpoint: string, body: any): Promise<any> {
 
   return await response.json();
 }
-
-/**
- * 後方互換性のために残す
- * @deprecated file.ts の getFile() を使用してください
- */
-export async function getFigmaFile(fileId: string) {
-  return await get(`files/${fileId}`);
-}
