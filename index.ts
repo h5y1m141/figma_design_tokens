@@ -1,42 +1,101 @@
+import { parseArgs } from "node:util";
+import { fetchComments } from "./src/figma/comment";
 import { display } from "./src/figma/display";
 import { fetchFile } from "./src/figma/file";
 import { findNodeById } from "./src/figma/node";
+import { fetchVariables } from "./src/figma/variable";
 
-const FIGMA_FILE_ID = process.env.FIGMA_FILE_ID;
-const FIGMA_NODE_ID = process.env.FIGMA_NODE_ID;
+type CommandType = "comment" | "variable" | "file" | "node";
 
-main();
-async function main() {
-  console.log("Figmaデザインファイルを取得中...");
-  console.log(`File ID: ${FIGMA_FILE_ID}`);
-  console.log(`Node ID: ${FIGMA_NODE_ID}\n`);
+type ParsedArgs = {
+  type: CommandType;
+  nodeId?: string;
+};
 
-  if (!FIGMA_FILE_ID || !FIGMA_NODE_ID) process.exit(1);
+function parseCliArgs(): ParsedArgs {
+  const { values } = parseArgs({
+    options: {
+      type: { type: "string", short: "t" },
+      "node-id": { type: "string" },
+    },
+  });
 
-  try {
-    const fileData = await fetchFile(FIGMA_FILE_ID);
-    display(
-      {
-        name: fileData.name,
-        lastModified: fileData.lastModified,
-        version: fileData.version,
-      },
-      { title: "✓ ファイル情報取得成功" },
-    );
-    console.log("");
-
-    const targetNode = findNodeById(
-      fileData.document,
-      FIGMA_NODE_ID.replace("-", ":"),
-    );
-
-    if (targetNode) {
-      display(targetNode, { title: "✓ 対象ノード発見" });
-    } else {
-      console.log(`⚠ ノードID "${FIGMA_NODE_ID}" が見つかりませんでした`);
-    }
-  } catch (error) {
-    console.error("エラーが発生しました:", error);
+  const type = values.type as CommandType;
+  if (!type) {
+    console.error("Error: --type オプションは必須です");
+    console.error("使用可能な type: comment, variable, file, node");
     process.exit(1);
   }
+
+  const validTypes = ["comment", "variable", "file", "node"];
+  if (!validTypes.includes(type)) {
+    console.error(`Error: 無効な type: ${type}`);
+    console.error("使用可能な type: comment, variable, file, node");
+    process.exit(1);
+  }
+
+  return {
+    type,
+    nodeId: values["node-id"] as string | undefined,
+  };
 }
+
+async function handleComment(fileId: string): Promise<void> {
+  const response = await fetchComments(fileId);
+  display(response, { title: "✓ コメント取得成功" });
+}
+
+async function handleVariable(fileId: string): Promise<void> {
+  const response = await fetchVariables(fileId);
+  display(response, { title: "✓ Variables 取得成功" });
+}
+
+async function handleFile(fileId: string): Promise<void> {
+  const response = await fetchFile(fileId);
+  display(response, { title: "✓ ファイル情報取得成功" });
+}
+
+async function handleNode(fileId: string, nodeId?: string): Promise<void> {
+  if (!nodeId) {
+    console.error("Error: --type=node には --node-id オプションが必須です");
+    process.exit(1);
+  }
+
+  const fileData = await fetchFile(fileId);
+  const normalizedNodeId = nodeId.replace("-", ":");
+  const node = findNodeById(fileData.document, normalizedNodeId);
+
+  if (!node) {
+    console.error(`Error: ノードID "${nodeId}" が見つかりませんでした`);
+    process.exit(1);
+  }
+
+  display(node, { title: "✓ ノード取得成功" });
+}
+
+async function main() {
+  const args = parseCliArgs();
+  const fileId = process.env.FIGMA_FILE_ID;
+
+  if (!fileId) {
+    console.error("Error: FIGMA_FILE_ID 環境変数が設定されていません");
+    process.exit(1);
+  }
+
+  switch (args.type) {
+    case "comment":
+      await handleComment(fileId);
+      break;
+    case "variable":
+      await handleVariable(fileId);
+      break;
+    case "file":
+      await handleFile(fileId);
+      break;
+    case "node":
+      await handleNode(fileId, args.nodeId);
+      break;
+  }
+}
+
+main();
