@@ -1,10 +1,20 @@
 import { get } from "./client";
+import type { NodeType } from "./node";
 
-/**
- * Figma File を取得
- * @param fileId - Figma File ID
- * @returns File データ
- */
-export async function getFile(fileId: string): Promise<any> {
+export type DocumentType = {
+  id: string;
+  name: string;
+  type: string;
+  children: NodeType[];
+};
+
+export type FileType = {
+  name: string;
+  lastModified: string;
+  version: string;
+  document: DocumentType;
+};
+
+export async function fetchFile(fileId: string): Promise<FileType> {
   return await get(`files/${fileId}`);
 }

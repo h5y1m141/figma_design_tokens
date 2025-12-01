@@ -48,6 +48,35 @@ Biome を使用してフォーマット＆リントを行う
 | Linter | recommended ルール |
 | import整理 | 自動 |
 
+### 命名規則
+
+| 種類 | 規則 | 例 |
+|------|------|-----|
+| API 取得関数 | `fetchXxx` | `fetchFile`, `fetchVariables` |
+| 型名 | `XxxType` | `FileType`, `VariableType` |
+| レスポンス型 | `XxxResponseType` | `VariablesResponseType` |
+
+### JSDoc
+
+- 型定義で自明な場合は JSDoc 不要
+- 外部リファレンスへのリンクは残す（例: Figma API ドキュメントへの参照）
+- 複雑なロジックの説明は残す
+
+### ロジック構成
+
+データ加工と出力処理を分離する（2段構成）
+
+```typescript
+// OK: データ加工 → 出力処理
+const filtered = items.filter((item) => item.active);
+display(filtered);
+
+// NG: for/forEach 内でデータ加工と出力が混在
+items.forEach((item) => {
+  if (item.active) console.log(item);
+});
+```
+
 ## コマンド
 
 ```bash

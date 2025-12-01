@@ -1,6 +1,6 @@
 import { get } from "./client";
 
-export type FigmaUserType = {
+export type UserType = {
   id: string;
   handle: string;
   image_url: string;
@@ -21,17 +21,14 @@ export type RegionType = {
   comment_pin_corner: string;
 };
 
-/**
- * コメントの client_meta（位置情報）
- */
 export type ClientMetaType = FrameOffsetType | RegionType;
 
-export type FigmaCommentType = {
+export type CommentType = {
   id: string;
   uuid?: string;
   file_key: string;
   parent_id: string;
-  user: FigmaUserType;
+  user: UserType;
   created_at: string;
   resolved_at: string | null;
   message: string;
@@ -39,10 +36,12 @@ export type FigmaCommentType = {
   order_id: string;
 };
 
-export type CommentsResponse = {
-  comments: FigmaCommentType[];
+export type CommentsResponseType = {
+  comments: CommentType[];
 };
 
-export async function fetchComments(fileId: string): Promise<CommentsResponse> {
+export async function fetchComments(
+  fileId: string,
+): Promise<CommentsResponseType> {
   return await get(`files/${fileId}/comments`);
 }
