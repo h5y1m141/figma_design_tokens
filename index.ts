@@ -1,9 +1,6 @@
+import { display } from "./src/figma/display";
 import { getFile } from "./src/figma/file";
-import {
-  displayFileInfo,
-  displayNodeInfo,
-  findNodeById,
-} from "./src/figma/node";
+import { findNodeById } from "./src/figma/node";
 
 const FIGMA_FILE_ID = process.env.FIGMA_FILE_ID;
 const FIGMA_NODE_ID = process.env.FIGMA_NODE_ID;
@@ -18,19 +15,26 @@ async function main() {
 
   try {
     const fileData = await getFile(FIGMA_FILE_ID);
-    displayFileInfo(fileData);
+    display(
+      {
+        name: fileData.name,
+        lastModified: fileData.lastModified,
+        version: fileData.version,
+      },
+      { title: "✓ ファイル情報取得成功" },
+    );
+    console.log("");
+
     const targetNode = findNodeById(
       fileData.document,
       FIGMA_NODE_ID.replace("-", ":"),
     );
 
     if (targetNode) {
-      displayNodeInfo(targetNode);
+      display(targetNode, { title: "✓ 対象ノード発見" });
     } else {
       console.log(`⚠ ノードID "${FIGMA_NODE_ID}" が見つかりませんでした`);
     }
-    console.log("\n=== ファイル全体情報 ===");
-    console.log(JSON.stringify(fileData, null, 2));
   } catch (error) {
     console.error("エラーが発生しました:", error);
     process.exit(1);
