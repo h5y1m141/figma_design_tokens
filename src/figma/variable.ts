@@ -1,4 +1,4 @@
-import { get, post } from "./client";
+import { get } from "./client";
 
 // ============================================
 // 型定義
@@ -98,62 +98,4 @@ export async function getFileVariables(
   fileId: string,
 ): Promise<GetVariablesResponse> {
   return await get(`files/${fileId}/variables/local`);
-}
-
-/**
- * Variables の一覧を見やすく表示
- * @param variablesData - getFileVariables() のレスポンス
- */
-export function displayVariables(variablesData: GetVariablesResponse): void {
-  const { variables, variableCollections } = variablesData.meta;
-
-  console.log("✓ Variables 取得成功\n");
-
-  // Collection ごとにグルーピングして表示
-  for (const [collectionId, collection] of Object.entries(
-    variableCollections,
-  )) {
-    console.log(`📁 Collection: ${collection.name} (${collectionId})`);
-    console.log(`   Modes: ${collection.modes.map((m) => m.name).join(", ")}`);
-    console.log(`   Default Mode: ${collection.defaultModeId}\n`);
-
-    // この Collection に属する Variables を表示
-    const collectionVariables = Object.values(variables).filter(
-      (v) => v.variableCollectionId === collectionId,
-    );
-
-    if (collectionVariables.length === 0) {
-      console.log("   (変数なし)\n");
-      continue;
-    }
-
-    for (const variable of collectionVariables) {
-      console.log(`   🔤 ${variable.name}`);
-      console.log(`      ID: ${variable.id}`);
-      console.log(`      Type: ${variable.resolvedType}`);
-      if (variable.description) {
-        console.log(`      Description: ${variable.description}`);
-      }
-
-      // Mode ごとの値を表示
-      console.log("      Values:");
-      for (const [modeId, value] of Object.entries(variable.valuesByMode)) {
-        const mode = collection.modes.find((m) => m.modeId === modeId);
-        const modeName = mode ? mode.name : modeId;
-        console.log(`         ${modeName}: ${JSON.stringify(value)}`);
-      }
-      console.log("");
-    }
-  }
-}
-
-/**
- * Variables の詳細情報を JSON で表示
- * @param variablesData - getFileVariables() のレスポンス
- */
-export function displayVariablesJSON(
-  variablesData: GetVariablesResponse,
-): void {
-  console.log("=== Variables 詳細情報（JSON） ===");
-  console.log(JSON.stringify(variablesData, null, 2));
 }

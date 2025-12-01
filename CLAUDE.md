@@ -17,11 +17,17 @@ src/figma/
 │                  # - 認証ヘッダーの付与、エラーハンドリング
 │                  # - エンドポイントURLは持たない
 │
+├── display.ts     # 出力層
+│                  # - 汎用的な display() 関数を提供
+│                  # - 任意の型のデータを Key/Value 形式で標準出力
+│                  # - ドメインごとの displayXxx() は作らない設計
+│
 └── [domain].ts    # ドメイン層 (file.ts, node.ts, variable.ts, comment.ts など)
                    # - Figma固有のドメインモデルを反映
                    # - 各ファイルがAPIエンドポイントURLを持つ
-                   # - 型定義 + 取得/表示関数
+                   # - 型定義 + データ取得関数
                    # - 実際のAPIアクセスは client.ts を経由
+                   # - 表示は display.ts の display() を使用
 ```
 
 ## 技術的制約
