@@ -1,29 +1,16 @@
 import { get } from "./client";
 
-// ============================================
-// 型定義
-// ============================================
+/** ref: https://www.figma.com/developers/api#variables-types */
+export type ResolvedType = "BOOLEAN" | "FLOAT" | "STRING" | "COLOR";
 
-/**
- * Figma Variables の resolvedType
- * ref: https://www.figma.com/developers/api#variables-types
- */
-export type FigmaResolvedType = "BOOLEAN" | "FLOAT" | "STRING" | "COLOR";
+export type VariableValueType =
+  | boolean
+  | number
+  | string
+  | { r: number; g: number; b: number; a: number }
+  | { type: "VARIABLE_ALIAS"; id: string };
 
-/**
- * Variable の値の型（resolvedType に応じて異なる）
- */
-export type VariableValue =
-  | boolean // BOOLEAN
-  | number // FLOAT
-  | string // STRING
-  | { r: number; g: number; b: number; a: number } // COLOR (RGBA)
-  | { type: "VARIABLE_ALIAS"; id: string }; // 他の変数への参照
-
-/**
- * Variable の適用範囲
- */
-export type VariableScope =
+export type VariableScopeType =
   | "ALL_SCOPES"
   | "TEXT_CONTENT"
   | "TEXT_FILL"
@@ -35,67 +22,45 @@ export type VariableScope =
   | "GAP"
   | "CORNER_RADIUS";
 
-/**
- * Variable の型定義
- */
-export type FigmaVariable = {
+export type VariableType = {
   id: string;
   name: string;
   key: string;
   variableCollectionId: string;
-  resolvedType: FigmaResolvedType;
-  valuesByMode: Record<string, VariableValue>;
-  // オプショナルなプロパティ
+  resolvedType: ResolvedType;
+  valuesByMode: Record<string, VariableValueType>;
   remote?: boolean;
   description?: string;
   hiddenFromPublishing?: boolean;
-  scopes?: VariableScope[];
+  scopes?: VariableScopeType[];
 };
 
-/**
- * Mode の型定義
- */
-export type FigmaMode = {
+export type ModeType = {
   modeId: string;
   name: string;
 };
 
-/**
- * VariableCollection の型定義
- */
-export type FigmaVariableCollection = {
+export type VariableCollectionType = {
   id: string;
   name: string;
-  modes: FigmaMode[];
+  modes: ModeType[];
   defaultModeId: string;
   remote?: boolean;
   hiddenFromPublishing?: boolean;
   variableIds: string[];
 };
 
-/**
- * API レスポンスの型定義
- */
-export type GetVariablesResponse = {
+export type VariablesResponseType = {
   status: number;
   error: boolean;
   meta: {
-    variables: Record<string, FigmaVariable>;
-    variableCollections: Record<string, FigmaVariableCollection>;
+    variables: Record<string, VariableType>;
+    variableCollections: Record<string, VariableCollectionType>;
   };
 };
 
-// ============================================
-// 関数
-// ============================================
-
-/**
- * Figma File の Variables を取得
- * @param fileId - Figma File ID
- * @returns Variables データ
- */
-export async function getFileVariables(
+export async function fetchVariables(
   fileId: string,
-): Promise<GetVariablesResponse> {
+): Promise<VariablesResponseType> {
   return await get(`files/${fileId}/variables/local`);
 }
